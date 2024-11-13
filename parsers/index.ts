@@ -66,6 +66,23 @@ import { getOwl } from "@parsers/world-1/owl";
 import { getKangaroo } from "@parsers/world-2/kangaroo";
 import { getVoteBallot } from "@parsers/world-2/voteBallot";
 
+
+const sendToLocalServer = async (data: { account: any; characters: any }) => {
+  
+  try {
+    await fetch('http://localhost:8000/save-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+      
+    });
+    console.info('data sent to local server successfully');
+  } catch (err) {
+    console.error('Error sending data to local server:', err);
+  }
+};
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: Record<string, any>, guildData: Record<string, any>, serverVars: Record<string, any>, accountCreateTime: number) => {
   let accountData, charactersData;
 
@@ -75,6 +92,11 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     const parsed = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
     accountData = parsed?.accountData;
     charactersData = parsed?.charactersData;
+
+    sendToLocalServer({ 
+      account: accountData, 
+      characters: charactersData 
+    }); 
     console.info('data', { account: accountData, characters: charactersData })
     console.info('%cParsed successfully', 'color: green');
     return { account: accountData, characters: charactersData };
